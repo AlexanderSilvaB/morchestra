@@ -1,0 +1,13 @@
+mas morchestra 
+{
+    agent maestro : maestro.asl{
+        join: orchestra
+        focus: orchestra.sheet
+    } 
+
+
+    workspace orchestra {
+    	artifact sheet : tools.Sheet()
+    }
+}
+
