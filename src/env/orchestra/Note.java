@@ -8,6 +8,7 @@ public class Note
     public int velocity;
     public int key;
     public int channel;
+    public String instrument;
 
     public Note(NoteType type, String name, int octave)
     {
@@ -17,6 +18,7 @@ public class Note
         this.channel = 0;
         this.velocity = 0;
         this.key = 0;
+        this.instrument = "";
     }   
 
     public String printable()

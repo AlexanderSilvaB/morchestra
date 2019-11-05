@@ -8,12 +8,15 @@ import java.util.List;
 import java.util.ArrayList;
 
 import javax.sound.midi.MidiSystem;
+import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Synthesizer;
+import javax.sound.midi.Instrument;
 import javax.sound.midi.MidiChannel;
 import javax.sound.midi.MidiEvent;
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.ShortMessage;
+import javax.sound.midi.Soundbank;
 import javax.sound.midi.Track;
 
 public class Synth {
@@ -23,24 +26,40 @@ public class Synth {
 	private MidiChannel[] channels;
 	private int volume = 80; // between 0 et 127
 	private Synthesizer synth;
+	private Instrument instruments[];
+
+	public Synth()
+	{
+		try
+		{
+			Soundbank sb = MidiSystem.getSynthesizer().getDefaultSoundbank();
+			if (sb!=null) 
+				instruments = sb.getInstruments();
+		}
+		catch(MidiUnavailableException ex)
+		{
+			instruments = new Instrument[0];
+		}
+		System.out.println("Instruments: " + instruments.length);
+	}
 
 	public void playSample()
 	{
-		play(Instruments.Piano, "6D",  1000);
+		play(0, "6D",  1000);
 		rest(500);
 		
-		play(Instruments.Piano, "6D",  300);
-		play(Instruments.Piano, "6C#", 300);
-		play(Instruments.Piano, "6D",  1000);
+		play(0, "6D",  300);
+		play(0, "6C#", 300);
+		play(0, "6D",  1000);
 		rest(500);
 		
-		play(Instruments.Piano, "6D",  300);
-		play(Instruments.Piano, "6C#", 300);
-		play(Instruments.Piano, "6D",  1000);
-		play(Instruments.Piano, "6E",  300);
-		play(Instruments.Piano, "6E",  600);
-		play(Instruments.Piano, "6G",  300);
-		play(Instruments.Piano, "6G",  600);
+		play(0, "6D",  300);
+		play(0, "6C#", 300);
+		play(0, "6D",  1000);
+		play(0, "6E",  300);
+		play(0, "6E",  600);
+		play(0, "6G",  300);
+		play(0, "6G",  600);
 		rest(500);
 	}
 
@@ -72,10 +91,14 @@ public class Synth {
 							String noteName = NOTE_NAMES.get(note);
 							int velocity = sm.getData2();
 
+							String instrument = instruments[sm.getChannel()].getName();
+							instrument = instrument.trim().replace(" ", "_").replace("'", "").replace(".", "").replace("-", "_").toLowerCase();
+
 							Note n = new Note(NoteType.ON, noteName, octave);
 							n.velocity = velocity;
 							n.key = key;
 							n.channel = sm.getChannel();
+							n.instrument = instrument;
 							t.notes.put(event.getTick(), n);
 							
 						} else if (sm.getCommand() == NOTE_OFF) {
@@ -85,10 +108,14 @@ public class Synth {
 							String noteName = NOTE_NAMES.get(note);
 							int velocity = sm.getData2();
 
+							String instrument = instruments[sm.getChannel()].getName();
+							instrument = instrument.trim().replace(" ", "_").replace("'", "").replace(".", "").replace("-", "_").toLowerCase();
+
 							Note n = new Note(NoteType.OFF, noteName, octave);
 							n.velocity = velocity;
 							n.key = key;
 							n.channel = sm.getChannel();
+							n.instrument = instrument;
 							t.notes.put(event.getTick(), n);
 						}
 					}
@@ -129,6 +156,17 @@ public class Synth {
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public int getInstrument(String name)
+	{
+		for(int i = 0; i < instruments.length; i++)
+		{
+			String iName = instruments[i].getName().trim().replace(" ", "_").replace("'", "").replace(".", "").replace("-", "_").toLowerCase();
+			if(iName.equals(name))
+				return i;
+		}
+		return 0;
 	}
 
 	/**
@@ -183,9 +221,10 @@ public class Synth {
 		}
 	}
 
-	public void play(Instruments instrument, String note, int duration)
+	public void play(String instrument, String note, int duration)
 	{
-		play(instrument.getValue(), note, duration);
+		int i = getInstrument(instrument);
+		play(i, note, duration);
 	}
 
 	public void play(Midi midi)
