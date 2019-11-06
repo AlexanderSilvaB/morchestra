@@ -1,13 +1,26 @@
 mas morchestra 
 {
+
     agent maestro : maestro.asl{
-        join: orchestra
-        focus: orchestra.sheet
+        beliefs:    songName("grease_summer_love")
+                    limitTicks(10000)
+                    
+        focus:      orchestra.sheet
+    } 
+    
+    /*agent piano1 : musician.asl{
+        beliefs: myInstrument("piano_1")
+        focus: orchestra.instrument
     } 
 
-    agent musician : musician.asl{
-        join: orchestra
+    agent piano2 : musician.asl{
+        beliefs: myInstrument("piano_2")
         focus: orchestra.instrument
+    } */
+    
+    agent musician : musician.asl{
+        focus: orchestra.instrument
+        instances: 200
     } 
 
     workspace orchestra {

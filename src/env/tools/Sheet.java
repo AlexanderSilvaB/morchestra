@@ -13,6 +13,7 @@ public class Sheet extends Artifact {
 	long startTime = 0, endTime = 0, elapsedTime = 0;
 	boolean opened = false;
 	long cTick = 0;
+	long maxTick = Long.MAX_VALUE;
 
 	void init() {
 		synth = new Synth();
@@ -60,7 +61,13 @@ public class Sheet extends Artifact {
 		cTick++;
 
 		ObsProperty hasTicks = getObsProperty("hasTicks");
-		hasTicks.updateValue(cTick < midi.maxTick && cTick < 20000);
+		hasTicks.updateValue(cTick < midi.maxTick && cTick < maxTick);
+	}
+
+	@OPERATION
+	void setMaxTick(long maxTick)
+	{
+		this.maxTick = maxTick;
 	}
 
 	@OPERATION

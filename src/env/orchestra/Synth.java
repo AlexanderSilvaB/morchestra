@@ -158,6 +158,14 @@ public class Synth {
 		}
 	}
 
+	public String[] getInstruments()
+	{
+		String[] names = new String[instruments.length];
+		for(int i = 0; i < names.length; i++)
+			names[i] = instruments[i].getName().trim().replace(" ", "_").replace("'", "").replace(".", "").replace("-", "_").toLowerCase();
+		return names;
+	}
+
 	public int getInstrument(String name)
 	{
 		for(int i = 0; i < instruments.length; i++)

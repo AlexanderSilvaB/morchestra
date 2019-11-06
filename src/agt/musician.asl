@@ -1,10 +1,22 @@
 !start.
 
-+!start : true <- .print("Ready to play").
++!start : myInstrument(S)
+    <- !instrumentSelected(S).
 
-+!play(T, I, N, V)
++!start <- 
+    getAnInstrument(S); 
+    !instrumentSelected(S).
+
++!instrumentSelected(S) 
+    <- .print("Selected instrument: ", S);
+        -myInstrument(_);
+        +myInstrument(S).
+
++!play(T, I, N, V) : myInstrument(I)
     <-  .print([T, I, N, V]); 
         play(T, I, N, V).
+
++!play(T, I, N, V).
 
 // jacamo includes
 { include("$jacamoJar/templates/common-cartago.asl") }
