@@ -91,8 +91,8 @@ public class Synth {
 							String noteName = NOTE_NAMES.get(note);
 							int velocity = sm.getData2();
 
-							String instrument = instruments[sm.getChannel()].getName();
-							instrument = instrument.trim().replace(" ", "_").replace("'", "").replace(".", "").replace("-", "_").toLowerCase();
+							String instrument = instruments[sm.getChannel()].getName().trim();
+							//instrument = instrument.replace(" ", "_").replace("'", "").replace(".", "").replace("-", "_").toLowerCase();
 
 							Note n = new Note(NoteType.ON, noteName, octave);
 							n.velocity = velocity;
@@ -108,8 +108,8 @@ public class Synth {
 							String noteName = NOTE_NAMES.get(note);
 							int velocity = sm.getData2();
 
-							String instrument = instruments[sm.getChannel()].getName();
-							instrument = instrument.trim().replace(" ", "_").replace("'", "").replace(".", "").replace("-", "_").toLowerCase();
+							String instrument = instruments[sm.getChannel()].getName().trim();
+							//instrument = instrument.replace(" ", "_").replace("'", "").replace(".", "").replace("-", "_").toLowerCase();
 
 							Note n = new Note(NoteType.OFF, noteName, octave);
 							n.velocity = velocity;
@@ -162,7 +162,8 @@ public class Synth {
 	{
 		String[] names = new String[instruments.length];
 		for(int i = 0; i < names.length; i++)
-			names[i] = instruments[i].getName().trim().replace(" ", "_").replace("'", "").replace(".", "").replace("-", "_").toLowerCase();
+			//names[i] = instruments[i].getName().trim().replace(" ", "_").replace("'", "").replace(".", "").replace("-", "_").toLowerCase();
+			names[i] = instruments[i].getName().trim();
 		return names;
 	}
 
@@ -170,7 +171,8 @@ public class Synth {
 	{
 		for(int i = 0; i < instruments.length; i++)
 		{
-			String iName = instruments[i].getName().trim().replace(" ", "_").replace("'", "").replace(".", "").replace("-", "_").toLowerCase();
+			//String iName = instruments[i].getName().trim().replace(" ", "_").replace("'", "").replace(".", "").replace("-", "_").toLowerCase();
+			String iName = instruments[i].getName().trim();
 			if(iName.equals(name))
 				return i;
 		}

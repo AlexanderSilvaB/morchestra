@@ -2,8 +2,8 @@ mas morchestra
 {
 
     agent maestro : maestro.asl{
-        beliefs:    songName("grease_summer_love")
-                    limitTicks(10000)
+        beliefs:    songName("Beethhoven_-_Beethoven_-_9th_Symphony")
+                    limitTicks(20000)
                     
         focus:      orchestra.sheet
     } 
@@ -20,7 +20,7 @@ mas morchestra
     
     agent musician : musician.asl{
         focus: orchestra.instrument
-        instances: 200
+        instances: 100
     } 
 
     workspace orchestra {

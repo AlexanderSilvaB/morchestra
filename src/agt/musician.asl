@@ -4,11 +4,11 @@
     <- !instrumentSelected(S).
 
 +!start <- 
-    getAnInstrument(S); 
+    pickAnInstrument(S); 
     !instrumentSelected(S).
 
 +!instrumentSelected(S) 
-    <- .print("Selected instrument: ", S);
+    <- .print("I play ", S);
         -myInstrument(_);
         +myInstrument(S).
 

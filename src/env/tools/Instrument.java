@@ -3,6 +3,7 @@ package tools;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.Semaphore;
 
 import cartago.*;
 import orchestra.*;
@@ -12,11 +13,15 @@ public class Instrument extends Artifact {
     Synth synth;
     ArrayList<String> names;
     Random rand;
+    Semaphore semaphore;
+
 
 	void init() {
         names = new ArrayList<String>();
         rand = new Random();
-		synth = new Synth();
+        synth = new Synth();
+        semaphore = new Semaphore(1);
+
         synth.open();
 	}
 
@@ -35,16 +40,27 @@ public class Instrument extends Artifact {
     }
     
     @OPERATION
-    void getAnInstrument(OpFeedbackParam name)
+    void pickAnInstrument(OpFeedbackParam name)
     {
-        if(names.size() == 0)
+        try
         {
-            names.addAll(Arrays.asList(synth.getInstruments()));
-        }
+            semaphore.acquire();
 
-        int i = rand.nextInt(names.size());
-        name.set(names.get(i));
-        names.remove(i);
+            if(names.size() == 0)
+            {
+                names.addAll(Arrays.asList(synth.getInstruments()));
+            }
+
+            int i = rand.nextInt(names.size());
+            name.set(names.get(i));
+            names.remove(i);
+            
+            semaphore.release();
+        } 
+        catch (InterruptedException e) 
+        {
+            name.set("Piano 1");
+        }
     }
     
     @OPERATION
