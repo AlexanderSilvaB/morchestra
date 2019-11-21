@@ -20,7 +20,7 @@ mas morchestra
     
     agent musician : musician.asl{
         focus: orchestra.instrument
-        instances: 100
+        instances: 500
     } 
 
     workspace orchestra {
