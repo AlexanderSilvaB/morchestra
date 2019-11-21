@@ -2,7 +2,7 @@ mas morchestra
 {
 
     agent maestro : maestro.asl{
-        beliefs:    songName("star_wars")
+        beliefs:    songName("The-Good-The-Bad-And-The-Ugly")
                     limitTicks(20000)
                     
         focus:      orchestra.sheet

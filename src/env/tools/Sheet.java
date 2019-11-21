@@ -64,7 +64,7 @@ public class Sheet extends Artifact {
 			for(Note note : notes)
 			{
 				int index = synth.getInstrument(note.instrument);
-				if(!individualNotes.containsKey(index));
+				if(individualNotes.containsKey(index) == false)
 					individualNotes.put(index, new LinkedHashMap<Long, Note>());
 				individualNotes.get(index).put(i, note);
 				//System.out.println("["+note.instrument+"]["+i+"] = "+note.toString());
@@ -192,8 +192,9 @@ public class Sheet extends Artifact {
 			if(entry.getKey() > tick)
 			{
 				nextTick.set(entry.getKey());
+				break;
 			}
-			break;
+			
 		}
 	}
 
