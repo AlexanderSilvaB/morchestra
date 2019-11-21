@@ -91,6 +91,8 @@ public class Sheet extends Artifact {
 				String instrumentName = synth.getInstrument(i);
 				name.set(instrumentName);
 				isValid.set(true);
+				neededIndex = i + 1;
+				break;
 			}
 			i++;
 		}
