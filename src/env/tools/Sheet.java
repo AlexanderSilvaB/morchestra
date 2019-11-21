@@ -1,6 +1,10 @@
 package tools;
 
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.Set;
+import java.util.Map.Entry;
 
 import cartago.*;
 import orchestra.*;
@@ -10,10 +14,12 @@ public class Sheet extends Artifact {
 	Synth synth;
 	Midi midi = null;
 	ArrayList<Note> notes = null;
+	LinkedHashMap<Integer, LinkedHashMap<Long, Note> > individualNotes = null;
 	long startTime = 0, endTime = 0, elapsedTime = 0;
 	boolean opened = false;
 	long cTick = 0;										//current tick
 	long maxTick = Long.MAX_VALUE;
+	int neededIndex;
 
 	void init() {
 		synth = new Synth();
@@ -50,9 +56,45 @@ public class Sheet extends Artifact {
 		hasTicks.updateValue(midi.maxTick > 0);
 
 		cTick = 0;
+		
+		individualNotes = new LinkedHashMap<Integer, LinkedHashMap<Long, Note> >();
+		for(long i = 0; i < midi.maxTick; i++)
+		{
+			ArrayList<Note> notes = midi.getNotes(i);
+			for(Note note : notes)
+			{
+				int index = synth.getInstrument(note.instrument);
+				if(!individualNotes.containsKey(index));
+					individualNotes.put(index, new LinkedHashMap<Long, Note>());
+				individualNotes.get(index).put(i, note);
+				//System.out.println("["+note.instrument+"]["+i+"] = "+note.toString());
+			}
+		}
+
+		neededIndex = 0;
 
 		success.set(true);
 	}
+
+	@OPERATION
+	void getNeededInstrument(OpFeedbackParam name, OpFeedbackParam isValid)
+	{
+		name.set("");
+		isValid.set(false);
+
+		Set<Entry<Integer, LinkedHashMap<Long, Note>>> entries = individualNotes.entrySet();
+		int i = 0;
+		for(Entry<Integer, LinkedHashMap<Long, Note>> entry : entries)
+		{
+			if(i == neededIndex)
+			{
+				String instrumentName = synth.getInstrument(i);
+				name.set(instrumentName);
+				isValid.set(true);
+			}
+			i++;
+		}
+	}	
 
 	@OPERATION
 	void nextTick()
@@ -100,6 +142,64 @@ public class Sheet extends Artifact {
 		endTime = System.nanoTime();
 		elapsedTime = (endTime - startTime) / 1000;
 		Synth.busyWaitMicros(midi.tickDuration - elapsedTime);
+	}
+
+	@OPERATION
+	void firstTick(String instrumentName, OpFeedbackParam tick)
+	{
+		int index = synth.getInstrument(instrumentName);
+		if(individualNotes.containsKey(index) == false)
+		{
+			tick.set(Long.MAX_VALUE);
+			return;
+		}
+
+		Set<Long> keys = individualNotes.get(index).keySet();
+		for(Long key : keys)
+		{
+			tick.set(key);
+			break;
+		}
+	}
+
+	@OPERATION
+	void proccessTick(String instrumentName, Long tick, OpFeedbackParam nextTick)
+	{
+		int index = synth.getInstrument(instrumentName);
+		if(!individualNotes.containsKey(index))
+		{
+			nextTick.set(Long.MAX_VALUE);
+			return;
+		}
+
+		Note note = individualNotes.get(index).get(tick);
+		if(note != null)
+		{
+			if(!opened)
+			{
+				synth.open();
+				opened = true;
+			}
+			synth.play(note);
+		}
+
+		Set<Entry<Long,Note>> entries = individualNotes.get(index).entrySet();
+		nextTick.set(Long.MAX_VALUE);
+		for(Entry<Long,Note> entry : entries)
+		{
+			if(entry.getKey() > tick)
+			{
+				nextTick.set(entry.getKey());
+			}
+			break;
+		}
+	}
+
+	@OPERATION
+	void startTick(OpFeedbackParam tick)
+	{
+		tick.set(cTick);
+		startTime = System.nanoTime();
 	}
 
 	@OPERATION

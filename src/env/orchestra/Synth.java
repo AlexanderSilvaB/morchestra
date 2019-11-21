@@ -71,7 +71,7 @@ public class Synth {
 	{
 		try
 		{
-			Path path = Paths.get(midiFileName);		//Pq criou objeto path????
+			Path path = Paths.get(midiFileName);
 			
 			Midi m = new Midi(path.getFileName().toString());									//Create a Midi object
 			Sequence sequence = MidiSystem.getSequence(new File(midiFileName));					//Gets the music accords sequence
@@ -185,6 +185,14 @@ public class Synth {
 				return i;
 		}
 		return 0;
+	}
+
+	//Return the corresponding name for the instrument index (return "" if instrument is not available)
+	public String getInstrument(int index)
+	{
+		if(index >= instruments.length)
+			return null;
+		return instruments[index].getName().trim();
 	}
 
 	/**
