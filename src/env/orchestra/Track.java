@@ -8,8 +8,8 @@ import java.util.Map.Entry;
 
 public class Track
 {
-    public int number;
-    public Map<Long, Note> notes;
+    public int number;                          //Number of the track
+    public Map<Long, Note> notes;               // <tick duration, Note>
     
     public Track(int number)
     {
@@ -17,6 +17,9 @@ public class Track
         notes = new HashMap<Long, Note>();
     }
 
+    /**
+     * Gets the maximum tick from the track
+     */
     public long getMaxTick()
     {
         long maxTick = 0;
@@ -29,6 +32,7 @@ public class Track
         return maxTick;
     }
 
+    //returns the note related to the tick
     public Note getNote(long tick)
     {
         return notes.get(tick);

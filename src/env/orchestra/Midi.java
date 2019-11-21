@@ -4,15 +4,15 @@ import java.util.ArrayList;
 
 public class Midi
 {
-    public String name;
+    public String name;                     //Music name
     public ArrayList<Track> tracks;
     public long maxTick;
-    public long tickDuration;
+    public long tickDuration;               //Size in 'ms' of each tick in the sequence
 
     public Midi(String name)
     {
         this.name = name;
-        tracks = new ArrayList<Track>();
+        tracks = new ArrayList<Track>();    
         maxTick = 0;
     }
 
@@ -21,6 +21,10 @@ public class Midi
         return (tickDuration * maxTick) / (1000000.0f);
     }
 
+
+    /**
+     * Gets the maximum tick from the midi file
+     */
     public void normalize()
     {
         maxTick = 0;
@@ -35,6 +39,10 @@ public class Midi
             tickDuration = 1;
     }
 
+
+    /*
+    *   Return a list of Notes for the current tick
+    */
     public ArrayList<Note> getNotes(long tick)
     {
         if(tick > maxTick)

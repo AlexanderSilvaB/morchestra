@@ -2,7 +2,7 @@ mas morchestra
 {
 
     agent maestro : maestro.asl{
-        beliefs:    songName("jurassic_park")
+        beliefs:    songName("star_wars")
                     limitTicks(20000)
                     
         focus:      orchestra.sheet

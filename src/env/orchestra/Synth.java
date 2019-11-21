@@ -24,10 +24,11 @@ public class Synth {
     public static final int NOTE_OFF = 0x80;
 	private static List<String> NOTE_NAMES = Arrays.asList("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B");
 	private MidiChannel[] channels;
-	private int volume = 80; // between 0 et 127
+	private int volume = 80; 					// between 0 et 127
 	private Synthesizer synth;
-	private Instrument instruments[];
+	private Instrument instruments[];			//list of instruments available in the default soundbank
 
+	//Initialize with a list of available instruments
 	public Synth()
 	{
 		try
@@ -63,35 +64,38 @@ public class Synth {
 		rest(500);
 	}
 
+	/* Creates a Midi object containing all the tracks events and their
+		respective time durations, for the selected music
+	*/
 	public Midi parse(String midiFileName)
 	{
 		try
 		{
-			Path path = Paths.get(midiFileName);
+			Path path = Paths.get(midiFileName);		//Pq criou objeto path????
 			
-			Midi m = new Midi(path.getFileName().toString());
-			Sequence sequence = MidiSystem.getSequence(new File(midiFileName));
+			Midi m = new Midi(path.getFileName().toString());									//Create a Midi object
+			Sequence sequence = MidiSystem.getSequence(new File(midiFileName));					//Gets the music accords sequence
 
-			m.tickDuration = (sequence.getMicrosecondLength() / sequence.getTickLength());
+			m.tickDuration = (sequence.getMicrosecondLength() / sequence.getTickLength());		//Size of each tick
 
 			int trackNumber = 0;
 			for (Track track :  sequence.getTracks()) {
 				trackNumber++;
-				orchestra.Track t = new orchestra.Track(trackNumber);
+				orchestra.Track t = new orchestra.Track(trackNumber);			//Create an object Track for each track in the sequence
 
 				for (int i=0; i < track.size(); i++) { 
-					MidiEvent event = track.get(i);
-					MidiMessage message = event.getMessage();
+					MidiEvent event = track.get(i);								//Gets an event into the track
+					MidiMessage message = event.getMessage();					//Gets the message contained into the event
 					if (message instanceof ShortMessage) {
-						ShortMessage sm = (ShortMessage) message;
+						ShortMessage sm = (ShortMessage) message;				//Massage with at most 2 data bytes
 						if (sm.getCommand() == NOTE_ON) {
 							int key = sm.getData1();
-							int octave = (key / 12)-1;
-							int note = key % 12;
-							String noteName = NOTE_NAMES.get(note);
-							int velocity = sm.getData2();
+							int octave = (key / 12)-1;							//Gets the octave
+							int note = key % 12;								//Gets the note
+							String noteName = NOTE_NAMES.get(note);				//Converts to the respective note name
+							int velocity = sm.getData2();						//Gets the note velocity
 
-							String instrument = instruments[sm.getChannel()].getName().trim();
+							String instrument = instruments[sm.getChannel()].getName().trim();		//Gets the current instrument
 							//instrument = instrument.replace(" ", "_").replace("'", "").replace(".", "").replace("-", "_").toLowerCase();
 
 							Note n = new Note(NoteType.ON, noteName, octave);
@@ -99,14 +103,14 @@ public class Synth {
 							n.key = key;
 							n.channel = sm.getChannel();
 							n.instrument = instrument;
-							t.notes.put(event.getTick(), n);
+							t.notes.put(event.getTick(), n);			//Adds the current Note in the track file
 							
 						} else if (sm.getCommand() == NOTE_OFF) {
 							int key = sm.getData1();
-							int octave = (key / 12)-1;
-							int note = key % 12;
-							String noteName = NOTE_NAMES.get(note);
-							int velocity = sm.getData2();
+							int octave = (key / 12)-1;							//Gets the octave
+							int note = key % 12;								//Gets the note
+							String noteName = NOTE_NAMES.get(note);				//Converts to the respective note name
+							int velocity = sm.getData2();						//Gets the note velocity
 
 							String instrument = instruments[sm.getChannel()].getName().trim();
 							//instrument = instrument.replace(" ", "_").replace("'", "").replace(".", "").replace("-", "_").toLowerCase();
@@ -116,12 +120,13 @@ public class Synth {
 							n.key = key;
 							n.channel = sm.getChannel();
 							n.instrument = instrument;
-							t.notes.put(event.getTick(), n);
+							t.notes.put(event.getTick(), n);			//Adds the current Note in the track file
+							
 						}
 					}
 				}
 
-				m.tracks.add(t);
+				m.tracks.add(t);			//Add the track to the Midi
 			}
 
 			m.normalize();
@@ -139,7 +144,7 @@ public class Synth {
 		try {
 			// * Open a synthesizer
 			synth = MidiSystem.getSynthesizer();
-			synth.open();
+			synth.open();									//Open the device, must acquire any system requirments needed
 			channels = synth.getChannels();
 		}
 		catch (Exception e) {
@@ -151,13 +156,15 @@ public class Synth {
 	{
 		try {
 			// * finish up
-			synth.close();
+			synth.close();									//Close the synthesizer
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
+
+	//Return a String vector with all instruments needed
 	public String[] getInstruments()
 	{
 		String[] names = new String[instruments.length];
@@ -167,6 +174,7 @@ public class Synth {
 		return names;
 	}
 
+	//Return the corresponding number for the instrument name (return 0 if instrument is not available)
 	public int getInstrument(String name)
 	{
 		for(int i = 0; i < instruments.length; i++)
@@ -212,7 +220,7 @@ public class Synth {
 	}
 
 	/**
-	 * Plays the given note for the given duration
+	 * Plays the given note for the given duration according Instrument NUMBER
 	 */
 	public void play(int instrument, String note, int duration)
 	{
@@ -231,26 +239,31 @@ public class Synth {
 		}
 	}
 
+	/**
+	 * Plays the given note for the given duration according Instrument NAME
+	 */
 	public void play(String instrument, String note, int duration)
 	{
 		int i = getInstrument(instrument);
 		play(i, note, duration);
 	}
-
+	/*
+	 * Plays all the midi file
+	 */
 	public void play(Midi midi)
 	{
 		if(midi == null)
 			return;
 		
 		long tick = 0;
-		ArrayList<Note> notes = midi.getNotes(tick);
+		ArrayList<Note> notes = midi.getNotes(tick);				// List of notes in the current tick
 		int p;
 		long startTime, endTime, elapsedTime;
 		while(notes != null)
 		{
 			startTime = System.nanoTime();
-			p = (int)((tick / (double)midi.maxTick) * 100);
-			progress(p, tick == 0, false);
+			p = (int)((tick / (double)midi.maxTick) * 100);			// Progress of the music in porcentage
+			progress(p, tick == 0, false);							// Prints the progress
 			play(notes);
 			notes = midi.getNotes(tick);
 			endTime = System.nanoTime();
@@ -261,6 +274,9 @@ public class Synth {
 		progress(100, false, true);
 	}
 
+	/**
+	 * Plays a sequence of notes
+	 */
 	public void play(ArrayList<Note> notes)
 	{
 		for(int i = 0; i < notes.size(); i++)
@@ -269,6 +285,9 @@ public class Synth {
 		}
 	}
 
+	/**
+	 * Plays a single note
+	 */
 	public void play(Note note)
 	{
 		if(note.type == NoteType.ON)

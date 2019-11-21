@@ -12,7 +12,7 @@ public class Sheet extends Artifact {
 	ArrayList<Note> notes = null;
 	long startTime = 0, endTime = 0, elapsedTime = 0;
 	boolean opened = false;
-	long cTick = 0;
+	long cTick = 0;										//current tick
 	long maxTick = Long.MAX_VALUE;
 
 	void init() {
@@ -30,6 +30,10 @@ public class Sheet extends Artifact {
 		super.dispose();
 	}
 
+
+	/**
+	 * Agent request for a Midi object for the Music
+	 */
 	@OPERATION
 	void readSheet(String fileName, OpFeedbackParam success) {
 		midi = synth.parse(fileName);

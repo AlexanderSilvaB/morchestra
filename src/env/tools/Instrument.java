@@ -69,8 +69,8 @@ public class Instrument extends Artifact {
         int instrument = synth.getInstrument(instrumentName);
 
         if(type.equals(NoteType.ON.name()))
-            synth.on(instrument, note, volume);
+            synth.on(instrument, note, volume);             //Play the instrument note
         else
-            synth.off(instrument, note, volume);
+            synth.off(instrument, note, volume);            //Stop playing the note
     }
 }
