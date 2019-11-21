@@ -14,42 +14,38 @@
 <structural-specification>
 
 <role-definitions>
-    <role id="role1" />
-    <role id="role2" />
+    <role id="maestro" />
+    <role id="musician" />
 </role-definitions>
 
-<group-specification id="group1">
+<group-specification id="gOrquestra">
     <roles>
-        <role id="role1" min="1" max="1"/>
-        <role id="role2" min="1" max="1"/>
+        <role id="maestro" min="1" max="1"/>
+        <role id="musician" min="1" max="10"/>
     </roles>
-
-    <links>
-       <link from="role1" to="role2" type="authority"     scope="intra-group" bi-dir="false"/>
-       <link from="role2" to="role1" type="communication" scope="intra-group" bi-dir="false"/>
-    </links>
-    <formation-constraints>
-       <compatibility from="role1" to="role2" />
-    </formation-constraints>
 </group-specification>
 </structural-specification>
 
 <functional-specification>
-    <scheme id="scheme1">
-        <goal id="goal1">
+    <scheme id="orquestra">
+        <goal id="partitura">
             <plan operator="sequence">
-                <goal id="goal2"    ttf="20 minutes" ds="description goal2"/>
-                <goal id="goal3"/>
-                <goal id="goal4"/>
+              <goal id="start" ttf="100 seconds"/>
+              <goal id="cnp"/>
+              <goal id="solicita"/>
+              <goal id="entrar"/>
+              <goal id="finalizar"/>
             </plan>
         </goal>
 
-        <mission id="mission1" min="1" max="1">
-            <goal id="goal2"/>
-            <goal id="goal4"/>
+        <mission id="mMaestro" min="1" max="1">
+            <goal id="start"/>
+            <goal id="cnp"/>
+            <goal id="solicita"/>
         </mission>
-        <mission id="mission2" min="1" max="1">
-            <goal id="goal3"/>
+        <mission id="mMusician" min="1" max="10">
+            <goal id="entrar"/>
+            <goal id="finalizar"/>
         </mission>
     </scheme>
 </functional-specification>
@@ -60,7 +56,7 @@
 
        when value = "fail", the platform ensures that the property is not broken (the property is thus regiment)
        when value = "prohibition", violations are produced when the property is not followed by the agents
-       when value = "ignore", no norm is produced 
+       when value = "ignore", no norm is produced
 
        possible properties are defined in https://github.com/moise-lang/moise/blob/master/src/main/java/ora4mas/nopl/tools/os2nopl.java
 
@@ -73,7 +69,8 @@
     </properties-->
 
     <!-- the norms of the application -->
-    <norm id="norm1" type="obligation" role="role2" mission="mission1"/>
+    <norm id="norm_musician" type="obligation" role="musician" mission="mMusician"/>
+    <norm id="norm_maestro" type="obligation" role="maestro" mission="mMaestro"/>
 </normative-specification>
 
 </organisational-specification>
