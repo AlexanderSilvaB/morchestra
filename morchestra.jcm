@@ -12,11 +12,7 @@ mas morchestra
         beliefs: myInstrument("piano_1")
         focus: orchestra.instrument
     } 
-
-    agent piano2 : musician.asl{
-        beliefs: myInstrument("piano_2")
-        focus: orchestra.instrument
-    } */
+     */
     
     agent musician : musician.asl{
         focus: orchestra.instrument
@@ -27,5 +23,18 @@ mas morchestra
     	artifact sheet : tools.Sheet()
         artifact instrument : tools.Instrument()
     }
+
+    // Organisation 
+    organisation orchestraOrg: orchestra_org.xml {  // the organisational entity is orchestra from spec orchestra_org.xml
+    	group orchestra_group: gOrquestra {               // instance group (jacamo_team) from spec team
+            responsible-for: orchestra_inst
+    		players: maestro maestro                 // the roles of the agents in this group         
+    		//debug                                   // starts the organisational inspector
+    	}
+        scheme orchestra_inst : orchestra_sch{
+            //debug
+        }
+    }
+
 }
 

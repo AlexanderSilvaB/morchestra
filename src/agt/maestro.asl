@@ -1,11 +1,13 @@
 /* Initial beliefs and rules */
+mCount(0).
+notReady.
+
 all_proposals_received(CNPId,NP) :-              // NP = number of participants
      .count(propose(CNPId,_)[source(_)], NO) &   // number of proposes received
      .count(refuse(CNPId)[source(_)], NR) &      // number of refusals received
      NP = NO + NR.
 
-/* Desires */ 
-!start.
+/* Desires */
 
 /* Plans */
 
@@ -27,9 +29,10 @@ all_proposals_received(CNPId,NP) :-              // NP = number of participants
 
 +!checkSheet(Sheet, S) : sheetName(NAME)
     <-  .print("Sheet loaded");
-        .print("Name: ", NAME);
-        !cNP;
-        !prepareToPlay.
+        .print("Name: ", NAME).
+        //!prepareToPlay.
+
++!tocar <- !prepareToPlay.
     
 +!prepareToPlay : limitTicks(L)
     <-  setMaxTick(L);
@@ -44,7 +47,8 @@ all_proposals_received(CNPId,NP) :-              // NP = number of participants
         !playNotes(Length, Types, Instruments, Notes, Volume);
         !waitPlay.
 
-+!play <- .print("Finished playing"); .stopMAS.
++!finalizar <- .print("Finished playing"); .stopMAS.
+//+!play <- .print("Finished playing"); .stopMAS.
 
 +!play(T, I, N, V). // Just to prevent errors when sendind "play" to everyone
 
@@ -66,23 +70,40 @@ all_proposals_received(CNPId,NP) :-              // NP = number of participants
         
 +!sendNotes([], [], [], []).
 
++!solicita : notReady <- .all_names(L);
+                         .length(L,Len);
+                         !verify(Len-1);
+                         !solicita.
+
++!verify(L) : mCount(N) & L==N 
+            <- -notReady.
+
++!verify(L).
+
++!solicita : mCount(N) 
+            <- .print("Solicitando entrada de musicos na organizacao...");
+                lookupArtifact("orchestra_group", GId);                        // get artifact id of scheme "orchestra_group"
+                admCommand(setCardinality(role, musician, N, N))[aid(GId)];
+                lookupArtifact("orchestra_inst", SId);                        // get artifact id of scheme "orchestra_inst"
+                admCommand(setCardinality(mission, mMusician, N, N))[aid(SId)];
+                .broadcast(achieve,enterOrg).
+
++!enterOrg.
 
 // ---------------------------------------- CNP ------------------------------------------------
-+!findMusician(Id, M) <- 
-               .print("Checking if there is a ", M);
-               .df_search(M, LP);
-               .length(LP, NM).
 
 // start the CNP
-+!cNP <- .print("Waiting musicians...");
++!cnp <- .print("Waiting musicians...");
          .wait(2000);
          getNeededInstrument(Instrument, V);
          !cNPcycle(0,Instrument, V).
 
-+!cNPcycle(N,Instrument, V) : V == true
++!cNPcycle(N,Instrument, V) : mCount(N) & V == true
             <- .print("Contracting musician for: |", Instrument,"|");
                 !startCNP(N,Instrument);
                 getNeededInstrument(NextIntrument, Cond);
+                -mCount(N);
+                +mCount(N+1);
                 !cNPcycle(N+1,NextIntrument, Cond).
 
 +!cNPcycle(N,Instrument, V) <- .broadcast(achieve, kill).

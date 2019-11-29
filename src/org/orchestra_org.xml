@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?xml-stylesheet href="http://moise.sourceforge.net/xml/os.xsl" type="text/xsl" ?>
+
+<organisational-specification
+    id="orchestra_org"
+    os-version="0.8"
+
+    xmlns='http://moise.sourceforge.net/os'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xsi:schemaLocation='http://moise.sourceforge.net/os
+                        http://moise.sourceforge.net/xml/os.xsd' >
+
+    <structural-specification>
+        <role-definitions>
+            <role id="maestro" />
+            <role id="musician" />
+        </role-definitions>
+
+        <group-specification id="gOrquestra">
+            <roles>
+                <role id="maestro" min="1" max="1"/>
+                <role id="musician" min="0" max="100"/>
+            </roles>
+        </group-specification>
+    </structural-specification>
+
+    <functional-specification>
+        <scheme id="orchestra_sch">
+            <goal id="playMusic">
+                <plan operator="sequence">
+                    <goal id="start" ttf="100 seconds"/>
+                    <goal id="cnp"/>
+                    <goal id="entra_org">
+                        <plan operator="sequence">
+                            <goal id="solicita"/>
+                            <goal id="entrar"/>
+                        </plan>
+                    </goal>
+                    <goal id="tocar"/>
+                    <goal id="finalizar"/>
+                </plan>
+            </goal>
+
+            <mission id="mMaestro" min="1" max="1">
+                <goal id="start"/>
+                <goal id="cnp"/>
+                <goal id="solicita"/>
+                <goal id="tocar"/>
+                <goal id="finalizar"/>
+            </mission>
+            <mission id="mMusician" min="0" max="100">
+                <goal id="entrar"/>
+            </mission>
+        </scheme>
+    </functional-specification>
+
+    <normative-specification>
+        <norm id="norm_musician" type="obligation" role="musician" mission="mMusician"/>
+        <norm id="norm_maestro" type="obligation" role="maestro" mission="mMaestro"/>
+    </normative-specification>
+
+</organisational-specification>

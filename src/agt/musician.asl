@@ -33,6 +33,15 @@ mustDie.
 
 +!kill.
 
++!enterOrg : mustDie.
++!enterOrg <-  .print("Adopting musician role");
+                     joinWorkspace("orchestraOrg",Org);
+                     .print("após join");
+                     lookupArtifact("orchestra_group", GId);                        // get artifact id of scheme "orchestra_group"     
+                     .print("após lookup");
+                     adoptRole(musician)[aid(GId)];
+                     .print("fim").
+
 // ---------------------------------------- CNP ------------------------------------------------
 // answer to Call For Proposal
 @c1 +cfp(CNPId,Mus)[source(A)]
