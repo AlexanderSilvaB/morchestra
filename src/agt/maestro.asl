@@ -32,6 +32,7 @@ all_proposals_received(CNPId,NP) :-              // NP = number of participants
         .print("Name: ", NAME).
         //!prepareToPlay.
 
+//Initialize the music
 +!tocar <- !prepareToPlay.
     
 +!prepareToPlay : limitTicks(L)
@@ -47,10 +48,11 @@ all_proposals_received(CNPId,NP) :-              // NP = number of participants
         !playNotes(Length, Types, Instruments, Notes, Volume);
         !waitPlay.
 
-+!finalizar <- .print("Finished playing"); .stopMAS.
-//+!play <- .print("Finished playing"); .stopMAS.
++!play.
 
-+!play(T, I, N, V). // Just to prevent errors when sendind "play" to everyone
++!finalizar <- .print("Finished playing"); .stopMAS.
+
+//+!play(T, I, N, V). // Just to prevent errors when sendind "play" to everyone
 
 // Waits for the next metronome tick
 //+!waitPlay <-   nextTick; !play.
@@ -70,6 +72,7 @@ all_proposals_received(CNPId,NP) :-              // NP = number of participants
         
 +!sendNotes([], [], [], []).
 
+// wait till the moment there is only the contracted musicians into the MAS
 +!solicita : notReady <- .all_names(L);
                          .length(L,Len);
                          !verify(Len-1);
@@ -82,9 +85,13 @@ all_proposals_received(CNPId,NP) :-              // NP = number of participants
 
 +!solicita : mCount(N) 
             <- .print("Solicitando entrada de musicos na organizacao...");
-                lookupArtifact("orchestra_group", GId);                        // get artifact id of scheme "orchestra_group"
-                admCommand(setCardinality(role, musician, N, N))[aid(GId)];
-                lookupArtifact("orchestra_inst", SId);                        // get artifact id of scheme "orchestra_inst"
+                // get artifact id of scheme "orchestra_group"
+                lookupArtifact("orchestra_group", GId);      
+                //change roles dependencies                  
+                admCommand(setCardinality(role, musician, 1, N))[aid(GId)];
+                // get artifact id of scheme "orchestra_inst"
+                lookupArtifact("orchestra_inst", SId);     
+                //changes quantity of mussician needed                   
                 admCommand(setCardinality(mission, mMusician, N, N))[aid(SId)];
                 .broadcast(achieve,enterOrg).
 
@@ -98,7 +105,7 @@ all_proposals_received(CNPId,NP) :-              // NP = number of participants
          getNeededInstrument(Instrument, V);
          !cNPcycle(0,Instrument, V).
 
-+!cNPcycle(N,Instrument, V) : mCount(N) & V == true
++!cNPcycle(N,Instrument, V) : V == true
             <- .print("Contracting musician for: |", Instrument,"|");
                 !startCNP(N,Instrument);
                 getNeededInstrument(NextIntrument, Cond);
@@ -107,14 +114,12 @@ all_proposals_received(CNPId,NP) :-              // NP = number of participants
                 !cNPcycle(N+1,NextIntrument, Cond).
 
 +!cNPcycle(N,Instrument, V) <- .broadcast(achieve, kill).
-
 +!kill.
 
 +!startCNP(Id,Mus)
    <- +cnp_state(Id,propose);                   // remember the state of the CNP
       .df_search(Mus,LP);
       .print("Sending CFP to ",LP);
-      //+nb_participants(Id,.length(LP));
       .send(LP,tell,cfp(Id,Mus));
       // the deadline of the CNP is now + 4 seconds (or all proposals were received)
       .wait(all_proposals_received(Id,.length(LP)), 4000, _);
@@ -133,7 +138,8 @@ all_proposals_received(CNPId,NP) :-              // NP = number of participants
       .min(L,offer(WOf,WAg));                   // sort offers, the first is the best
       .print("Winner is ",WAg," with ",WOf);
       !announce_result(CNPId,L,WAg);
-      -+cnp_state(CNPId,finished).
+      -cnp_state(CNPId,_);
+      .abolish(propose(CNPId,_)).
 
 // nothing to do, the current phase is not 'propose'
 @lc2 +!contract(_).
@@ -142,10 +148,12 @@ all_proposals_received(CNPId,NP) :-              // NP = number of participants
    <- .print("CNP ",CNPId," has failed!").
 
 +!announce_result(_,[],_).
+
 // announce to the winner
 +!announce_result(CNPId,[offer(_,WAg)|T],WAg)
    <- .send(WAg,tell,accept_proposal(CNPId));
       !announce_result(CNPId,T,WAg).
+
 // announce to others
 +!announce_result(CNPId,[offer(_,LAg)|T],WAg)
    <- .send(LAg,tell,reject_proposal(CNPId));

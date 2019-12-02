@@ -55,7 +55,7 @@
         </scheme>
     </functional-specification>
 
-    <normative-specification>
+    <normative-specification>        
         <norm id="norm_musician" type="obligation" role="musician" mission="mMusician"/>
         <norm id="norm_maestro" type="obligation" role="maestro" mission="mMaestro"/>
     </normative-specification>

@@ -28,26 +28,28 @@ mustDie.
 
 +!play(T, I, N, V).
 
-+!kill: mustDie & .my_name(N) <- .print("I kill myself!");
++!kill: mustDie & .my_name(N) <- //.print("I kill myself!");
                                   .kill_agent(N).
 
 +!kill.
 
 +!enterOrg : mustDie.
-+!enterOrg <-  .print("Adopting musician role");
-                     joinWorkspace("orchestraOrg",Org);
-                     .print("após join");
-                     lookupArtifact("orchestra_group", GId);                        // get artifact id of scheme "orchestra_group"     
-                     .print("após lookup");
-                     adoptRole(musician)[aid(GId)];
-                     .print("fim").
+
+@eo[atomic]
++!enterOrg  <- .print("Adopting musician role...");
+               joinWorkspace("orchestraOrg",Org);
+               adoptRole(musician);
+               commitMission(mMusician);
+               goalAchieved(entrar).
+
++!entrar <- .print("I am in the orchestra.").
 
 // ---------------------------------------- CNP ------------------------------------------------
 // answer to Call For Proposal
 @c1 +cfp(CNPId,Mus)[source(A)]
    :  provider(A,"maestro") & 
       price(Offer)
-   <- +proposal(CNPId,Mus,Offer); // remember my proposal
+   <- +proposal(CNPId,Mus,Offer);            // remember my proposal
       .send(A,tell,propose(CNPId,Offer)).
 
 @r1 +accept_proposal(CNPId)

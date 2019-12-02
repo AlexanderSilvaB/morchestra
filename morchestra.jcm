@@ -1,8 +1,7 @@
 mas morchestra 
 {
-
     agent maestro : maestro.asl{
-        beliefs:    songName("The-Good-The-Bad-And-The-Ugly")
+        beliefs:    songName("Beethhoven_-_Beethoven_-_9th_Symphony")
                     limitTicks(20000)
                     
         focus:      orchestra.sheet
