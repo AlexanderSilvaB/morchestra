@@ -144,6 +144,7 @@ public class Sheet extends Artifact {
 		endTime = System.nanoTime();
 		elapsedTime = (endTime - startTime) / 1000;
 		Synth.busyWaitMicros(midi.tickDuration - elapsedTime);
+		startTime = System.nanoTime();
 	}
 
 	@OPERATION
@@ -215,7 +216,7 @@ public class Sheet extends Artifact {
 			instruments.set(def);
 			notes.set(def);
 			volume.set(def);
-			startTime = System.nanoTime();
+			//startTime = System.nanoTime();
 			return;
 		}
 

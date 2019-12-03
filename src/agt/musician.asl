@@ -21,12 +21,28 @@ mustDie.
             <- .df_register(S);
                .df_subscribe("maestro").
 
-
+/*
 +!play(T, I, N, V) : myInstrument(I)
     <-  .print([T, I, N, V]); 
         play(T, I, N, V).
 
 +!play(T, I, N, V).
+*/
+
+// Musician is obligated to 'tocar'
++!tocar : next(T, I, N, V) & myInstrument(I)
+         <- .print([T, I, N, V]); 
+            play(T, I, N, V);
+            .abolish(next(T, I, N, V));
+            !tocar.
+
++!tocar : next(T, I, N, V)
+        <-  .abolish(next(T, I, N, V));
+            !tocar.
+
++!tocar : not end <- .wait(1);
+                     !tocar.
++!tocar.
 
 +!kill: mustDie & .my_name(N) <- //.print("I kill myself!");
                                   .kill_agent(N).
@@ -38,9 +54,10 @@ mustDie.
 @eo[atomic]
 +!enterOrg  <- .print("Adopting musician role...");
                joinWorkspace("orchestraOrg",Org);
+               lookupArtifact("orchestra_group", GId);
+               focus(GId);
                adoptRole(musician);
-               commitMission(mMusician);
-               goalAchieved(entrar).
+               commitMission(mMusician).
 
 +!entrar <- .print("I am in the orchestra.").
 

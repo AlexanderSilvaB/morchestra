@@ -37,7 +37,12 @@
                             <goal id="entrar"/>
                         </plan>
                     </goal>
-                    <goal id="tocar"/>
+                    <goal id="show">
+                        <plan operator="parallel">
+                            <goal id="coordenar"/>
+                            <goal id="tocar"/>
+                        </plan>
+                    </goal>
                     <goal id="finalizar"/>
                 </plan>
             </goal>
@@ -46,11 +51,12 @@
                 <goal id="start"/>
                 <goal id="cnp"/>
                 <goal id="solicita"/>
-                <goal id="tocar"/>
+                <goal id="coordenar"/>
                 <goal id="finalizar"/>
             </mission>
             <mission id="mMusician" min="0" max="100">
                 <goal id="entrar"/>
+                <goal id="tocar"/>
             </mission>
         </scheme>
     </functional-specification>

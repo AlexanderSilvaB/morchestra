@@ -33,7 +33,7 @@ all_proposals_received(CNPId,NP) :-              // NP = number of participants
         //!prepareToPlay.
 
 //Initialize the music
-+!tocar <- !prepareToPlay.
++!coordenar <- !prepareToPlay.
     
 +!prepareToPlay : limitTicks(L)
     <-  setMaxTick(L);
@@ -48,7 +48,7 @@ all_proposals_received(CNPId,NP) :-              // NP = number of participants
         !playNotes(Length, Types, Instruments, Notes, Volume);
         !waitPlay.
 
-+!play.
++!play <- .broadcast(tell, end).
 
 +!finalizar <- .print("Finished playing"); .stopMAS.
 
@@ -67,7 +67,8 @@ all_proposals_received(CNPId,NP) :-              // NP = number of participants
 
 +!sendNotes([T | TS], [I | IS], [N | NS], [V | VS])
     <-  //.send(musician, achieve, play(T, I, N, V));
-        .broadcast(achieve, play(T, I, N, V));
+        // .broadcast(achieve, play(T, I, N, V));
+        .broadcast(tell, next(T, I, N, V));
         !sendNotes(TS, IS, NS, VS).
         
 +!sendNotes([], [], [], []).

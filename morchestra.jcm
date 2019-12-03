@@ -1,7 +1,7 @@
 mas morchestra 
 {
     agent maestro : maestro.asl{
-        beliefs:    songName("Beethhoven_-_Beethoven_-_9th_Symphony")
+        beliefs:    songName("star_wars")
                     limitTicks(20000)
                     
         focus:      orchestra.sheet
