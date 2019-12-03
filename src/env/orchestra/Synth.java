@@ -26,19 +26,26 @@ public class Synth {
 	private MidiChannel[] channels;
 	private int volume = 80; 					// between 0 et 127
 	private Synthesizer synth;
+	private Soundbank sb;
 	private Instrument instruments[];			//list of instruments available in the default soundbank
 
 	//Initialize with a list of available instruments
 	public Synth()
 	{
-		try
-		{
-			Soundbank sb = MidiSystem.getSynthesizer().getDefaultSoundbank();
-			if (sb!=null) 
+		try{	
+			File file = new File("soundbanks/GeneralUser.sf2"); 	// or maybe Wonderful.dls
+
+			try { 
+				sb = MidiSystem.getSoundbank(file);
+			}catch (Exception e) { 
+				e.printStackTrace(); 
+			}
+			// sb = MidiSystem.getSynthesizer().getDefaultSoundbank();
+
+			if (sb!=null) {
 				instruments = sb.getInstruments();
-		}
-		catch(MidiUnavailableException ex)
-		{
+			}
+		}catch(Exception ex){
 			instruments = new Instrument[0];
 		}
 		System.out.println("Instruments: " + instruments.length);
