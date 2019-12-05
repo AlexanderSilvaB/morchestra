@@ -43,35 +43,28 @@ all_proposals_received(CNPId,NP) :-              // NP = number of participants
     <- !play.
 
 // Read the next notes and plays it
+@p1[atomic]
 +!play : hasTicks(H) & H == true
-    <-  tickNotes(Length, Types, Instruments, Notes, Volume); 
-        !playNotes(Length, Types, Instruments, Notes, Volume);
+    <-  nextTick(Length, Types, Instruments, Notes, Volume);
+        !sendNotes(Length, Types, Instruments, Notes, Volume); 
         !waitPlay.
 
 +!play <- .broadcast(tell, end).
 
 +!finalizar <- .print("Finished playing"); .stopMAS.
 
-//+!play(T, I, N, V). // Just to prevent errors when sendind "play" to everyone
-
 // Waits for the next metronome tick
-//+!waitPlay <-   nextTick; !play.
-+!waitPlay <-  waitTick; nextTick; !play.
+@w1[atomic]
++!waitPlay <-  waitTick; !play.
 
-// Tell the musicians what to do
-+!playNotes(L, T, I, N, V) : L > 0
-    <-  //.print(T, I, N, V); 
-        !sendNotes(T, I, N, V).
-
-+!playNotes(L, T, I, N, V).
-
-+!sendNotes([T | TS], [I | IS], [N | NS], [V | VS])
++!sendNotes(L, [T | TS], [I | IS], [N | NS], [V | VS]) : L>0
     <-  //.send(musician, achieve, play(T, I, N, V));
-        // .broadcast(achieve, play(T, I, N, V));
-        .broadcast(tell, next(T, I, N, V));
-        !sendNotes(TS, IS, NS, VS).
+        //.broadcast(tell, next(T, I, N, V));
+        .df_search(I,LP);
+        .send(LP,tell,next(T, I, N, V));
+        !sendNotes(L,TS, IS, NS, VS).
         
-+!sendNotes([], [], [], []).
++!sendNotes(_, [], [], [], []).
 
 // wait till the moment there is only the contracted musicians into the MAS
 +!solicita : notReady <- .all_names(L);
@@ -114,27 +107,28 @@ all_proposals_received(CNPId,NP) :-              // NP = number of participants
                 +mCount(N+1);
                 !cNPcycle(N+1,NextIntrument, Cond).
 
-+!cNPcycle(N,Instrument, V) <- .broadcast(achieve, kill).
++!cNPcycle(N,Instrument, V) <-  .print("This music needs ",N," musicians.");
+                                .broadcast(achieve, kill).
 +!kill.
 
 +!startCNP(Id,Mus)
    <- +cnp_state(Id,propose);                   // remember the state of the CNP
       .df_search(Mus,LP);
-      .print("Sending CFP to ",LP);
+      //.print("Sending CFP to ",LP);
       .send(LP,tell,cfp(Id,Mus));
       // the deadline of the CNP is now + 4 seconds (or all proposals were received)
       .wait(all_proposals_received(Id,.length(LP)), 4000, _);
-      !contract(Id).
+      !contract(Id,Mus).
 
 // this plan needs to be atomic so as not to accept
 // proposals or refusals while contracting
 @lc1[atomic]
-+!contract(CNPId)
++!contract(CNPId,Mus)
    :  cnp_state(CNPId,propose)
    <- -cnp_state(CNPId,_);
       +cnp_state(CNPId,contract);
       .findall(offer(O,A),propose(CNPId,O)[source(A)],L);
-      .print("Offers are ",L);
+      //.print("Offers are ",L);
       L \== [];                                 // constraint the plan execution to at least one offer
       .min(L,offer(WOf,WAg));                   // sort offers, the first is the best
       .print("Winner is ",WAg," with ",WOf);

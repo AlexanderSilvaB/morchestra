@@ -42,7 +42,7 @@ public class Sheet extends Artifact {
 	 */
 	@OPERATION
 	void readSheet(String fileName, OpFeedbackParam success) {
-		midi = synth.parse(fileName);
+		midi = synth.parse(fileName);								//Obtain a Midi object with info of the music
 		if(midi == null)
 		{
 			success.set(false);
@@ -50,10 +50,10 @@ public class Sheet extends Artifact {
 		}
 
 		ObsProperty sheetName = getObsProperty("sheetName");
-		sheetName.updateValue(midi.name);
+		sheetName.updateValue(midi.name);							//Property with the sheet name
 
 		ObsProperty hasTicks = getObsProperty("hasTicks");
-		hasTicks.updateValue(midi.maxTick > 0);
+		hasTicks.updateValue(midi.maxTick > 0);						//Property with the status of available ticks
 
 		cTick = 0;
 		
@@ -99,17 +99,61 @@ public class Sheet extends Artifact {
 	}	
 
 	@OPERATION
-	void nextTick()
+	void nextTick(OpFeedbackParam length, OpFeedbackParam types, OpFeedbackParam instruments, OpFeedbackParam notesProp, OpFeedbackParam volume)
 	{
 		if(midi == null)
 			return;
-		
-		notes = midi.getNotes(cTick);
 
-		cTick++;
+		do{
+			notes = midi.getNotes(cTick);
+			cTick++;
+			
+			if(notes.isEmpty()){
+				endTime = System.nanoTime();
+				elapsedTime = (endTime - startTime) / 1000;
+				Synth.busyWaitMicros(midi.tickDuration - elapsedTime);
+				startTime = System.nanoTime();
+			}
+		}while(notes.isEmpty());	
+		
 
 		ObsProperty hasTicks = getObsProperty("hasTicks");
 		hasTicks.updateValue(cTick < midi.maxTick && cTick < maxTick);
+		
+		/*
+		if(midi == null || this.notes.isEmpty())
+		{
+			String[] def = new String[0];
+			length.set(0);
+			types.set(def);
+			instruments.set(def);
+			notesProp.set(def);
+			volume.set(def);
+			//startTime = System.nanoTime();
+			return;
+		}*/
+
+		String[] typesData = new String[this.notes.size()];
+		String[] instrumentsData = new String[this.notes.size()];
+		String[] notesData = new String[this.notes.size()];
+		int[] volumeData = new int[this.notes.size()];
+
+		int i = 0;
+		for(Note note : this.notes)
+		{
+			//typesData[i] = note.type == NoteType.ON ? "ON" : "OFF";
+			typesData[i] = note.type.name();
+			instrumentsData[i] = note.instrument;
+			notesData[i] = note.printable();
+			volumeData[i] = note.velocity;
+			i++;
+		}
+
+		length.set(this.notes.size());
+		types.set(typesData);
+		instruments.set(instrumentsData);
+		notesProp.set(notesData);
+		volume.set(volumeData);
 	}
 
 	@OPERATION
@@ -117,7 +161,8 @@ public class Sheet extends Artifact {
 	{
 		this.maxTick = maxTick;
 	}
-
+	
+	/*
 	@OPERATION
 	void playTick()
 	{
@@ -132,7 +177,7 @@ public class Sheet extends Artifact {
 		}
 		synth.play(notes);
 		startTime = System.nanoTime();
-	}
+	}*/
 
 	@OPERATION
 	void waitTick()
@@ -147,6 +192,7 @@ public class Sheet extends Artifact {
 		startTime = System.nanoTime();
 	}
 
+	/*
 	@OPERATION
 	void firstTick(String instrumentName, OpFeedbackParam tick)
 	{
@@ -241,7 +287,7 @@ public class Sheet extends Artifact {
 		instruments.set(instrumentsData);
 		notes.set(notesData);
 		volume.set(volumeData);
-		startTime = System.nanoTime();
-	}
+		//startTime = System.nanoTime();
+	}*/
 }
 

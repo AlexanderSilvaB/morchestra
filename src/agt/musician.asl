@@ -52,7 +52,7 @@ mustDie.
 +!enterOrg : mustDie.
 
 @eo[atomic]
-+!enterOrg  <- .print("Adopting musician role...");
++!enterOrg  <- //.print("Adopting musician role...");
                joinWorkspace("orchestraOrg",Org);
                lookupArtifact("orchestra_group", GId);
                focus(GId);
@@ -65,17 +65,17 @@ mustDie.
 // answer to Call For Proposal
 @c1 +cfp(CNPId,Mus)[source(A)]
    :  provider(A,"maestro") & 
-      price(Offer)
+      myInstrument(Mus) & price(Offer)
    <- +proposal(CNPId,Mus,Offer);            // remember my proposal
       .send(A,tell,propose(CNPId,Offer)).
 
 @r1 +accept_proposal(CNPId)
    :  proposal(CNPId,Mus,Offer)
-   <- .print("I will be the ",Mus," in the orchestra!");
+   <- //.print("I will be the ",Mus," in the orchestra!");
       -mustDie.
 
 @r2 +reject_proposal(CNPId)
-   <- .print("I lost CNP ",CNPId, ".");
+   <- //.print("I lost CNP ",CNPId, ".");
       -proposal(CNPId,_,_).                 // clear memory
     
 // jacamo includes
