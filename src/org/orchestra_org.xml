@@ -13,13 +13,13 @@
 
     <structural-specification>
         <role-definitions>
-            <role id="maestro" />
+            <role id="conductor" />
             <role id="musician" />
         </role-definitions>
 
         <group-specification id="gOrquestra">
             <roles>
-                <role id="maestro" min="1" max="1"/>
+                <role id="conductor" min="1" max="1"/>
                 <role id="musician" min="0" max="100"/>
             </roles>
         </group-specification>
@@ -31,39 +31,39 @@
                 <plan operator="sequence">
                     <goal id="start" ttf="100 seconds"/>
                     <goal id="cnp"/>
-                    <goal id="entra_org">
+                    <goal id="mus_register">
                         <plan operator="sequence">
-                            <goal id="solicita"/>
-                            <goal id="entrar"/>
+                            <goal id="invite"/>
+                            <goal id="signUp"/>
                         </plan>
                     </goal>
                     <goal id="show">
                         <plan operator="parallel">
-                            <goal id="coordenar"/>
-                            <goal id="tocar"/>
+                            <goal id="orchestrate"/>
+                            <goal id="play_instrument"/>
                         </plan>
                     </goal>
-                    <goal id="finalizar"/>
+                    <goal id="end"/>
                 </plan>
             </goal>
 
-            <mission id="mMaestro" min="1" max="1">
+            <mission id="mConductor" min="1" max="1">
                 <goal id="start"/>
                 <goal id="cnp"/>
-                <goal id="solicita"/>
-                <goal id="coordenar"/>
-                <goal id="finalizar"/>
+                <goal id="invite"/>
+                <goal id="orchestrate"/>
+                <goal id="end"/>
             </mission>
             <mission id="mMusician" min="0" max="100">
-                <goal id="entrar"/>
-                <goal id="tocar"/>
+                <goal id="signUp"/>
+                <goal id="play_instrument"/>
             </mission>
         </scheme>
     </functional-specification>
 
     <normative-specification>        
         <norm id="norm_musician" type="obligation" role="musician" mission="mMusician"/>
-        <norm id="norm_maestro" type="obligation" role="maestro" mission="mMaestro"/>
+        <norm id="norm_conductor" type="obligation" role="conductor" mission="mConductor"/>
     </normative-specification>
 
 </organisational-specification>

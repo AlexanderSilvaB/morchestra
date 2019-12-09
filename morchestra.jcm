@@ -1,8 +1,8 @@
 mas morchestra 
 {
-    agent maestro : maestro.asl{
-        beliefs:    songName("star_wars")
-                    limitTicks(20000)
+    agent conductor : conductor.asl{
+        beliefs:    songName("Beethoven_symphony_9")
+                    limitTicks(30000)
                     
         focus:      orchestra.sheet
     } 
@@ -15,7 +15,7 @@ mas morchestra
     
     agent musician : musician.asl{
         focus: orchestra.instrument
-        instances: 500
+        instances: 400
     } 
 
     workspace orchestra {
@@ -27,7 +27,7 @@ mas morchestra
     organisation orchestraOrg: orchestra_org.xml {  // the organisational entity is orchestra from spec orchestra_org.xml
     	group orchestra_group: gOrquestra {               // instance group (jacamo_team) from spec team
             responsible-for: orchestra_inst
-    		players: maestro maestro                 // the roles of the agents in this group         
+    		players: conductor conductor                 // the roles of the agents in this group         
     		//debug                                   // starts the organisational inspector
     	}
         scheme orchestra_inst : orchestra_sch{

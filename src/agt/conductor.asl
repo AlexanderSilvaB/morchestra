@@ -16,8 +16,8 @@ all_proposals_received(CNPId,NP) :-              // NP = number of participants
         !register;
         !loadSheet(File).
 
-//Register the agent as maestro
-+!register <- .df_register("maestro").
+//Register the agent as conductor
++!register <- .df_register("conductor").
 
 // Loads a sheet
 +!loadSheet(Sheet) : true 
@@ -33,7 +33,7 @@ all_proposals_received(CNPId,NP) :-              // NP = number of participants
         //!prepareToPlay.
 
 //Initialize the music
-+!coordenar <- !prepareToPlay.
++!orchestrate <- !prepareToPlay.
     
 +!prepareToPlay : limitTicks(L)
     <-  setMaxTick(L);
@@ -51,7 +51,7 @@ all_proposals_received(CNPId,NP) :-              // NP = number of participants
 
 +!play <- .broadcast(tell, end).
 
-+!finalizar <- .print("Finished playing"); .stopMAS.
++!end <- .print("Finished playing"); .stopMAS.
 
 // Waits for the next metronome tick
 @w1[atomic]
@@ -67,22 +67,27 @@ all_proposals_received(CNPId,NP) :-              // NP = number of participants
 +!sendNotes(_, [], [], [], []).
 
 // wait till the moment there is only the contracted musicians into the MAS
-+!solicita : notReady <- .all_names(L);
++!invite : notReady <- .all_names(L);
                          .length(L,Len);
+                         .wait(500);
                          !verify(Len-1);
-                         !solicita.
+                         !invite.
 
 +!verify(L) : mCount(N) & L==N 
-            <- -notReady.
+            <- -notReady.  
+
++!verify(L) : mCount(N) & L<N & sheetName(NAME)
+            <-  .print("There are not enough musicians for music ", NAME);
+                .stopMAS.
 
 +!verify(L).
 
-+!solicita : mCount(N) 
-            <- .print("Solicitando entrada de musicos na organizacao...");
++!invite : mCount(N) 
+            <- .print("Inviting musicians for the organisation ...");
                 // get artifact id of scheme "orchestra_group"
                 lookupArtifact("orchestra_group", GId);      
                 //change roles dependencies                  
-                admCommand(setCardinality(role, musician, 1, N))[aid(GId)];
+                admCommand(setCardinality(role, musician, 0, N))[aid(GId)];
                 // get artifact id of scheme "orchestra_inst"
                 lookupArtifact("orchestra_inst", SId);     
                 //changes quantity of mussician needed                   
@@ -101,7 +106,8 @@ all_proposals_received(CNPId,NP) :-              // NP = number of participants
 
 +!cNPcycle(N,Instrument, V) : V == true
             <- .print("Contracting musician for: |", Instrument,"|");
-                !startCNP(N,Instrument);
+                .df_search(Instrument,LP);
+                !startCNP(N,Instrument,LP);
                 getNeededInstrument(NextIntrument, Cond);
                 -mCount(N);
                 +mCount(N+1);
@@ -111,14 +117,15 @@ all_proposals_received(CNPId,NP) :-              // NP = number of participants
                                 .broadcast(achieve, kill).
 +!kill.
 
-+!startCNP(Id,Mus)
++!startCNP(Id,Mus,LP) : LP \==[]
    <- +cnp_state(Id,propose);                   // remember the state of the CNP
-      .df_search(Mus,LP);
       //.print("Sending CFP to ",LP);
       .send(LP,tell,cfp(Id,Mus));
       // the deadline of the CNP is now + 4 seconds (or all proposals were received)
       .wait(all_proposals_received(Id,.length(LP)), 4000, _);
       !contract(Id,Mus).
+
++!startCNP(Id,Mus,LP) <- .print("No ", Mus, " available.").
 
 // this plan needs to be atomic so as not to accept
 // proposals or refusals while contracting
