@@ -1,8 +1,8 @@
 mas morchestra 
 {
     agent conductor : conductor.asl{
-        beliefs:    songName("Beethoven_symphony_9")
-                    limitTicks(30000)
+        beliefs:    songName("Bach-Siloti")
+                    //limitTicks(30000)
                     
         focus:      orchestra.sheet
     } 
