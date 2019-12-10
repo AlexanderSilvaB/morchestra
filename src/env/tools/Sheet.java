@@ -154,6 +154,8 @@ public class Sheet extends Artifact {
 		instruments.set(instrumentsData);
 		notesProp.set(notesData);
 		volume.set(volumeData);
+
+		startTime = System.nanoTime();
 	}
 
 	@OPERATION
