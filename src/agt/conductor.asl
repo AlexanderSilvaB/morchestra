@@ -18,6 +18,7 @@ all_proposals_received(CNPId,NP) :-              // NP = number of participants
 
 +!start
     <-  getASong(Name);
+        +songName(Name);
         .concat("data/", Name, ".mid", File);
         !register;
         !loadSheet(File).
