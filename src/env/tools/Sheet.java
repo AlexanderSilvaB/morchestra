@@ -1,10 +1,13 @@
 package tools;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Random;
 
 import cartago.*;
 import orchestra.*;
@@ -74,6 +77,40 @@ public class Sheet extends Artifact {
 		neededIndex = 0;
 
 		success.set(true);
+	}
+
+
+
+	@OPERATION
+	void getASong(OpFeedbackParam name)
+	{
+		try {
+			File f = new File("./data");
+			FilenameFilter filter = new FilenameFilter() {
+                @Override
+                public boolean accept(File f, String name) {
+                    // We want to find only .c files
+                    return name.endsWith(".mid");
+                }
+			};
+			
+			File[] files = f.listFiles(filter);
+
+			if(files.length == 0)
+			{
+				name.set("invalid");
+				return;
+			}
+
+			Random rand = new Random();
+			int i = rand.nextInt(files.length);
+			String selected = files[i].getName().replaceFirst("[.][^.]+$", "");
+			name.set(selected);
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+			name.set("invalid");
+        }
+
 	}
 
 	@OPERATION
