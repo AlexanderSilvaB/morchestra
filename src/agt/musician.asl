@@ -59,7 +59,9 @@ mustDie.
                adoptRole(musician);
                commitMission(mMusician).
 
-+!signUp <- .print("I am in the orchestra.").
++!signUp : .my_name(Name) & myInstrument(S) 
+   <- enterOrchestra(Name, S); 
+      .print("I am in the orchestra.").
 
 // ---------------------------------------- CNP ------------------s------------------------------
 // answer to Call For Proposal

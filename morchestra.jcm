@@ -5,6 +5,7 @@ mas morchestra
                     //limitTicks(30000)
                     
         focus:      orchestra.sheet
+                    orchestra.gui
     } 
     
     /*agent piano1 : musician.asl{
@@ -15,12 +16,14 @@ mas morchestra
     
     agent musician : musician.asl{
         focus: orchestra.instrument
+               orchestra.gui
         instances: 400
     } 
 
     workspace orchestra {
     	artifact sheet : tools.Sheet()
         artifact instrument : tools.Instrument()
+        artifact gui : tools.GUI()
     }
 
     // Organisation 

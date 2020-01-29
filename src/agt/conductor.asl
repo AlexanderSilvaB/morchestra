@@ -24,19 +24,22 @@ all_proposals_received(CNPId,NP) :-              // NP = number of participants
         !loadSheet(File).
 
 //Register the agent as conductor
-+!register <- .df_register("conductor").
++!register : .my_name(Name) <- 
+    .df_register("conductor"); 
+    enterOrchestra(Name, "conductor").
 
 // Loads a sheet
-+!loadSheet(Sheet) : true 
++!loadSheet(Sheet) : true
     <-  readSheet(Sheet, S);
         !checkSheet(Sheet, S).
 
 // Check if the sheet was successfully loaded
 +!checkSheet(Sheet, S) : S == false <- .print("Failed to load '", Sheet, "'").
 
-+!checkSheet(Sheet, S) : sheetName(NAME)
++!checkSheet(Sheet, S) : sheetName(NAME) & songName(N)
     <-  .print("Sheet loaded");
-        .print("Name: ", NAME).
+        .print("Name: ", NAME);
+        setOrchestraSong(N).
         //!prepareToPlay.
 
 //Initialize the music
@@ -58,7 +61,7 @@ all_proposals_received(CNPId,NP) :-              // NP = number of participants
 
 +!play <- .broadcast(tell, end).
 
-+!end <- .print("Finished playing"); .stopMAS.
++!end : .my_name(Name) <- exitOrchestra(Name); .print("Finished playing"); .stopMAS.
 
 // Waits for the next metronome tick
 @w1[atomic]
